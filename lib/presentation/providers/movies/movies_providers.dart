@@ -1,0 +1,37 @@
+
+import 'package:cbrv_movies_app/domain/entities/domain.dart';
+
+import 'package:flutter_riverpod/legacy.dart';
+
+import 'movies_repository_provider.dart';
+
+final nowPlayingMoviesProvider = StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
+  final fetchMoreMovies = ref.watch(movieRepositoryProvider).getNowPlaying;
+  return MoviesNotifier(fetchMoreMovies: fetchMoreMovies);
+});
+
+typedef MovieCallback = Future<List<Movie>> Function({ int page}); //recibe un listado de peliculas con una paginacion
+
+class MoviesNotifier extends StateNotifier<List<Movie>>{
+
+  int currentPage = 0;
+  bool isLoading = false;
+  MovieCallback fetchMoreMovies;
+
+  MoviesNotifier({
+    required this.fetchMoreMovies
+  }): super([]);
+
+  Future<void> loadNextPage() async {
+    if ( isLoading ) return;
+    isLoading = true;
+
+    currentPage++; //cada vez que va ingresando la pagina va aumentando
+    final List<Movie> movies = await fetchMoreMovies( page: currentPage );
+    state = [...state, ...movies]; //las peliculas que ya tengo agrega las nuevas peliculas y se crea en un nuevo state que es un nuevo listado de peliculas
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    isLoading = false;
+  }
+
+}
