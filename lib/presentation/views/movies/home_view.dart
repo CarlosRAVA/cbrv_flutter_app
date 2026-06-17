@@ -14,35 +14,42 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
   }
 
   @override
   Widget build(BuildContext context) {
+    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
 
-    final nowPlayingMovies = ref.watch( nowPlayingMoviesProvider);
-
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          floating: true,
-          flexibleSpace: FlexibleSpaceBar(
-            titlePadding: EdgeInsets.zero,
-            title: CustomAppBar(),
+    return SafeArea(
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: CustomAppBar(),
+              titlePadding: EdgeInsets.zero,
+            ),
           ),
-        ),
 
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            return Column(
-              children: [
-                MoviesSlideshow(movies: []),
-                Text('data'),
-              ],
-            );
-          }, childCount: 1),
-        ),
-      ],
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              return Column(
+                children: [
+                  MoviesSlideshow(movies: nowPlayingMovies),
+                  MovieHorizontalListview(
+                    movies: nowPlayingMovies,
+                    title: 'En Cines',
+                    subtitle: 'A Partir de',
+                    loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
+                  )
+                ],
+              );
+            }, childCount: 1),
+          ),
+        ],
+      ),
     );
   }
 }
