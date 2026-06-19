@@ -34,9 +34,88 @@ class _MovieScreenState extends ConsumerState<MovieScreen> {
       body: CustomScrollView(
         physics: ClampingScrollPhysics(),
         slivers: [
+          //AppBar
           _CustomSliverAppBar(movie: movie!),
 
-          //TODO: Description
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _MovieDetails(movie: movie),
+              childCount: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MovieDetails extends StatelessWidget {
+  final Movie movie;
+
+  const _MovieDetails({required this.movie});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // TODO: Titulo, Overview, Rating
+        _TitleAndOverview(movie: movie),
+
+        // TODO: Géneros de la película
+
+        // TODO: Actores
+
+        // TODO: Trailers
+
+        // TODO: Peliculas Similares
+      ],
+    );
+  }
+}
+
+class _TitleAndOverview extends StatelessWidget {
+  final Movie movie;
+
+  const _TitleAndOverview({required this.movie});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final textStyle = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: EdgeInsetsGeometry.symmetric(horizontal: 8, vertical: 15),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadiusGeometry.circular(20),
+            child: Image.network(movie.posterPath, width: size.width * 0.3),
+          ),
+
+          SizedBox(width: 10),
+
+          SizedBox(
+            width: (size.width - 40) * 0.7,
+            child: Column(
+              children: [
+                Text(movie.title, style: textStyle.titleLarge),
+                Text(
+                  movie.overview.isNotEmpty
+                      ? movie.overview
+                      : 'Sin Información',
+                ),
+                Row(
+                  children: [
+                    Text('Estreno: ', style: TextStyle(fontWeight: FontWeight.bold),),
+                    SizedBox(width: 5,),
+                    Text(HumanFormats.shortDate(movie.releaseDate))
+                  ],
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -78,8 +157,9 @@ class _CustomSliverAppBar extends StatelessWidget {
                 movie.posterPath,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress != null)
+                  if (loadingProgress != null) {
                     return CircularProgressIndicator();
+                  }
                   return FadeIn(child: child);
                 },
               ),
@@ -89,11 +169,16 @@ class _CustomSliverAppBar extends StatelessWidget {
             _CustomGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
-              colors: [
-                Colors.black45,
-                Colors.transparent
-              ],
-              stops: [0.0,0.2],
+              colors: [Colors.black54, Colors.transparent],
+              stops: [0.0, 0.2],
+            ),
+
+            // Fondo para la flecha hacia atrás
+            _CustomGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.black87, Colors.transparent],
+              stops: [0.0, 0.3],
             ),
           ],
         ),
@@ -131,3 +216,5 @@ class _CustomGradient extends StatelessWidget {
     );
   }
 }
+
+//! git commit -m "fix: Construcción del detalle de la pelicula"
