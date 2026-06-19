@@ -22,34 +22,35 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
 
-    return SafeArea(
-      child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: CustomAppBar(),
-              titlePadding: EdgeInsets.zero,
-            ),
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: CustomAppbar(),
+            titlePadding: EdgeInsets.zero,
           ),
+        ),
 
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return Column(
-                children: [
-                  MoviesSlideshow(movies: nowPlayingMovies),
-                  MovieHorizontalListview(
-                    movies: nowPlayingMovies,
-                    title: 'En Cines',
-                    subtitle: 'A Partir de',
-                    loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
-                  )
-                ],
-              );
-            }, childCount: 1),
-          ),
-        ],
-      ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            return Column(
+              children: [
+                MoviesSlideshow(movies: nowPlayingMovies),
+                SizedBox(height: 20),
+                MovieHorizontalListview(
+                  movies: nowPlayingMovies,
+                  title: 'En cines',
+                  subtitle: 'A partir de',
+                  loadNextPage: () => ref
+                      .read(nowPlayingMoviesProvider.notifier)
+                      .loadNextPage(),
+                ),
+              ],
+            );
+          }),
+        ),
+      ],
     );
   }
 }

@@ -9,18 +9,15 @@ final appRouter = GoRouter(
       path: '/home/:page',
       builder: (context, state) {
         final pageIndex = int.parse(state.pathParameters['page'] ?? '0');
-
         return HomeScreen();
       },
       routes: [
         GoRoute(
           path: '/movie/:id',
-          name: MovieScreen.name,
           builder: (context, state) {
-            
-            final movieId = state.pathParameters['id'] ?? 'no-id';
+            final movieId = state.pathParameters['id'] ?? '0';
 
-            return MovieScreen(movieId: movieId,);
+            return MovieScreen(movieId: movieId);
           },
         ),
       ],

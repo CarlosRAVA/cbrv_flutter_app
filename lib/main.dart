@@ -1,5 +1,4 @@
 import 'package:cbrv_movies_app/config/config.dart';
-import 'package:cbrv_movies_app/config/theme/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

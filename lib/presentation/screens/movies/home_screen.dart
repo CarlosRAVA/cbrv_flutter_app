@@ -1,3 +1,4 @@
+import 'package:cbrv_movies_app/presentation/views/movies/home_view.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -5,7 +6,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(body: HomeView());
   }
 }
-// git commit -m "init: Configuracion del Proyecto incial"
