@@ -3,10 +3,12 @@ import 'package:cbrv_movies_app/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cbrv_movies_app/domain/entities/domain.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:cbrv_movies_app/config/config.dart';
+import 'package:cbrv_movies_app/domain/entities/domain.dart';
+import 'package:cbrv_movies_app/presentation/widgets/widgets.dart';
 
 class MovieScreen extends ConsumerStatefulWidget {
   static const name = 'movie-screen';
-
   final String movieId;
 
   const MovieScreen({super.key, required this.movieId});
@@ -27,7 +29,9 @@ class _MovieScreenState extends ConsumerState<MovieScreen> {
     final Movie? movie = ref.watch(movieInfoProvider)[widget.movieId];
 
     if (movie == null) {
-      Scaffold(body: Center(child: CircularProgressIndicator(strokeWidth: 2)));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      );
     }
 
     return Scaffold(
@@ -35,8 +39,8 @@ class _MovieScreenState extends ConsumerState<MovieScreen> {
         physics: ClampingScrollPhysics(),
         slivers: [
           //AppBar
-          _CustomSliverAppBar(movie: movie!),
-
+          _CustomSliverAppBar(movie: movie),
+          //Description
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) => _MovieDetails(movie: movie),
@@ -51,7 +55,6 @@ class _MovieScreenState extends ConsumerState<MovieScreen> {
 
 class _MovieDetails extends StatelessWidget {
   final Movie movie;
-
   const _MovieDetails({required this.movie});
 
   @override
@@ -59,16 +62,17 @@ class _MovieDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // TODO: Titulo, Overview, Rating
+        // Titulo, overview y rating
         _TitleAndOverview(movie: movie),
 
-        // TODO: Géneros de la película
+        // Todo: Generos de la pelicula
+        MovieGenres(movie: movie),
 
-        // TODO: Actores
+        // Todo: Actores de la pelicula
 
-        // TODO: Trailers
+        // Todo: Trailers de la pelicula
 
-        // TODO: Peliculas Similares
+        // Todo: Peliculas similares
       ],
     );
   }
@@ -76,7 +80,6 @@ class _MovieDetails extends StatelessWidget {
 
 class _TitleAndOverview extends StatelessWidget {
   final Movie movie;
-
   const _TitleAndOverview({required this.movie});
 
   @override
@@ -90,7 +93,7 @@ class _TitleAndOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadiusGeometry.circular(20),
+            borderRadius: BorderRadius.circular(20),
             child: Image.network(movie.posterPath, width: size.width * 0.3),
           ),
 
@@ -99,20 +102,28 @@ class _TitleAndOverview extends StatelessWidget {
           SizedBox(
             width: (size.width - 40) * 0.7,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(movie.title, style: textStyle.titleLarge),
                 Text(
                   movie.overview.isNotEmpty
                       ? movie.overview
-                      : 'Sin Información',
+                      : 'Sin información',
                 ),
+
+                SizedBox(height: 10),
+                MovieRating(voteAverage: movie.voteAverage),
+
                 Row(
                   children: [
-                    Text('Estreno: ', style: TextStyle(fontWeight: FontWeight.bold),),
-                    SizedBox(width: 5,),
-                    Text(HumanFormats.shortDate(movie.releaseDate))
+                    Text(
+                      'Estreno',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 5),
+                    Text(HumanFormats.shortDate(movie.releaseDate)),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -124,13 +135,12 @@ class _TitleAndOverview extends StatelessWidget {
 
 class _CustomSliverAppBar extends StatelessWidget {
   final Movie movie;
-
   const _CustomSliverAppBar({required this.movie});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final scaffoldBackgrundColor = Theme.of(context).scaffoldBackgroundColor;
+    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
     return SliverAppBar(
       backgroundColor: Colors.black,
@@ -138,17 +148,17 @@ class _CustomSliverAppBar extends StatelessWidget {
       foregroundColor: Colors.white,
       actions: [
         IconButton(
-          onPressed: () {},
           icon: Icon(Icons.favorite_border, color: Colors.red),
+          onPressed: () {},
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: EdgeInsetsGeometry.only(bottom: 0),
+        titlePadding: EdgeInsets.only(bottom: 0),
         title: _CustomGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           stops: [0.7, 1.0],
-          colors: [Colors.transparent, scaffoldBackgrundColor],
+          colors: [Colors.transparent, scaffoldBackgroundColor],
         ),
         background: Stack(
           children: [
@@ -157,28 +167,24 @@ class _CustomSliverAppBar extends StatelessWidget {
                 movie.posterPath,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress != null) {
+                  if (loadingProgress == null) {
                     return CircularProgressIndicator();
                   }
                   return FadeIn(child: child);
                 },
               ),
             ),
-
-            //Fondo del botón de Favoritos
             _CustomGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
+              stops: [0.0, 0.4],
               colors: [Colors.black54, Colors.transparent],
-              stops: [0.0, 0.2],
             ),
-
-            // Fondo para la flecha hacia atrás
             _CustomGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.black87, Colors.transparent],
               stops: [0.0, 0.3],
+              colors: [Colors.black87, Colors.transparent],
             ),
           ],
         ),
@@ -191,7 +197,7 @@ class _CustomGradient extends StatelessWidget {
   final AlignmentGeometry begin;
   final AlignmentGeometry end;
   final List<Color> colors;
-  final List<double> stops;
+  final List<double>? stops;
 
   const _CustomGradient({
     required this.begin,
@@ -208,8 +214,8 @@ class _CustomGradient extends StatelessWidget {
           gradient: LinearGradient(
             begin: begin,
             end: end,
-            stops: stops,
             colors: colors,
+            stops: stops,
           ),
         ),
       ),
