@@ -1,28 +1,31 @@
 import 'package:cbrv_movies_app/config/config.dart';
 import 'package:cbrv_movies_app/domain/datasources/movies_datasource.dart';
 import 'package:cbrv_movies_app/domain/entities/movie.dart';
+import 'package:cbrv_movies_app/domain/repositories/movies_repository.dart';
+import 'package:cbrv_movies_app/infrastructure/mappers/actor_mapper.dart';
 import 'package:cbrv_movies_app/infrastructure/mappers/movie_mapper.dart';
+import 'package:cbrv_movies_app/infrastructure/models/moviedb/moviedb_credits.dart';
 import 'package:cbrv_movies_app/infrastructure/models/moviedb/moviedb_response.dart';
 import 'package:dio/dio.dart';
 
-class MovidedbDatasourceImpl extends MoviesDatasource{
-
+class MoviedbDatasourceImpl extends MoviesDatasource {
+  
   final dio = Dio(BaseOptions(
-    baseUrl: Environment.apiUrl,
+    baseUrl: Enviroment.apiUrl,
     queryParameters: {
-      'api_key': Environment.theMovieDbKey,
-      'language': Environment.language
+      'api_key': Enviroment.theMovieDbKey,
+      'language': Enviroment.language,
     }
   ));
 
   @override
-  Future<Movie> getMovieById(String id) async {
+  Future<Movie> getMovieById(String id) async{
     final response = await dio.get('/movie/$id');
-    if ( response.statusCode != 200 ) throw Exception('Movie with id $id not found');
+    if (response.statusCode != 200)
+      throw Exception('Movie with id $id not found');
 
-    //TODO: return movie
-    final detail = MovieDb.fromJson(response.data);
-    final Movie movie = MovieMapper.movieDbToEntity(detail);
+    final detail = MovieDbDetail.fromJson(response.data);
+    final Movie movie = MovieMapper.movieDetailToEntity(detail);
     return movie;
   }
 
@@ -30,16 +33,30 @@ class MovidedbDatasourceImpl extends MoviesDatasource{
   Future<List<Movie>> getNowPlaying({int page = 1}) async {
     final response = await dio.get('/movie/now_playing',
     queryParameters: {
-      'page': page
+      'page': page,
     });
-
+    
     final movieDbResponse = MovieDbResponse.fromJson(response.data);
     final List<Movie> movies = movieDbResponse.results
-    .map( (moviedb) => MovieMapper.movieDbToEntity(moviedb)).toList();
-
-    return movies;
+      .map( (moviedb) => MovieMapper.movieDbToEntity(moviedb)).toList();
+      return movies;
   }
 
+    @override
+  Future<List<Actor>> getActorsByMovie(String movieId) async{
+    final response = await dio.get(
+      '/movie/$movieId/credits'
+    );
+
+    final credits = MovieDbCredits.fromJson(response.data);
+
+    List<Actor> actors = credits.cast.map(
+      (cast) => ActorMapper.castToEntity(cast)
+    ).toList();
+
+    return actors;
+  }
+  
   @override
   Future<List<Movie>> getPopular({int page = 1}) {
     // TODO: implement getPopular
@@ -65,7 +82,7 @@ class MovidedbDatasourceImpl extends MoviesDatasource{
   }
 
   @override
-  Future<List<dynamic>> getYoutubeVideoById(String movieId) {
+  Future<List<Movie>> getYoutubeVideoById(String movieId) {
     // TODO: implement getYoutubeVideoById
     throw UnimplementedError();
   }
