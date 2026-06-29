@@ -1,9 +1,9 @@
 import 'package:cbrv_movies_app/domain/entities/domain.dart';
 
-class MovieRepositoryImpl extends MoviesRepository{
-
+class MovieRepositoryImpl extends MoviesRepository {
   final MoviesDatasource datasource;
-  MovieRepositoryImpl(this.datasource); //todo aquel elemento que se encuentre en la capa de infraestructura debe extender de la capa de dominio
+
+  MovieRepositoryImpl(this.datasource);
 
   @override
   Future<Movie> getMovieById(String id) {
@@ -45,4 +45,9 @@ class MovieRepositoryImpl extends MoviesRepository{
     return datasource.searchMovie(query);
   }
 
+  @override
+  Future<List<Actor>> getActorsByMovie(String movieId) {
+    // TODO: implement getActorsByMovie
+    throw UnimplementedError();
+  }
 }
